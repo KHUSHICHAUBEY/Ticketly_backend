@@ -1,119 +1,30 @@
 const express = require("express");
-const {verifyToken} = require("../middleware/auth");
+const { verifyToken } = require("../middleware/auth");
 const router = express.Router();
 
 const User = require("../controller/userController");
 const Ticket = require("../controller/ticketController");
 const Label = require("../controller/labelController");
 
+// ================= USER =================
+router.post("/login", User.login);
+router.post("/register", User.userRegister);
 
+router.get("/getallusers", verifyToken, User.getAllUsers);
+router.get("/view1", verifyToken, User.viewDetail);
 
+// ================= TICKET =================
+router.post("/createticket", verifyToken, Ticket.createTicket);
+router.get("/viewalltickets", verifyToken, Ticket.viewAllTickets);
+router.put("/updateticket", verifyToken, Ticket.updateTicket);
+router.post("/filterticket", verifyToken, Ticket.filterTickets);
+router.post("/createcomment", verifyToken, Ticket.createComment);
+router.post("/viewcomment", verifyToken, Ticket.viewComment);
 
-                             // User API's
-
-/****************************** Login-api *******************************/
-router
-  .route("/login")
-  .post([User.login]);
-
-
-/****************************** Register-api ****************************/
-router
-  .route("/register")
-  .post([User.userRegister]);
-
-
-/******************************* getAllJUsers-api **********************/                           
-
-router
-     .route("/getallusers")
-     .get([User.getAllUsers]); 
-
-
-/******************************* viewdetail-api **************************************/
-router 
-     .route("/view1")
-     .get([verifyToken,User.viewDetail]);  
-
-
-                           // Ticket API's
-
-
-/****************************** create-api ******************************/
-
-router
-  .route("/createticket")
-  .post([verifyToken,Ticket.createTicket]);
-
-
-/****************************** viewall-api *******************************/
-
-router
-  .route("/viewalltickets")
-  .get([Ticket.viewAllTickets]);
-  
- 
- 
-/****************************** update-api *******************************/
-
-router
-.route("/updateticket")
-// .put([verifyToken,Ticket.updateTicket]);
-.put([Ticket.updateTicket]); 
-    
-
-
-/************************ filteringtickets-api **************************/
-  router   
-      .route("/filterticket")
-      .post([Ticket.filterTickets]);
-
-
-
-/****************************** createComment-api ************************/
-router
-.route("/createcomment")
-.post([Ticket.createComment]);    
-
-
-
-/****************************** viewComment-api ************************/
-router
-.route("/viewcomment")
-.post([Ticket.viewComment]);    
-
-                             // Label API'S
-     
-   /************************* creatingLabel-api ***************************/
-
-      router
-      .route("/createlabel")
-      .post([Label.createLabel]);
-  
-
-   /************************ retreivingLabel-api **************************/
-
-   router
-   .route("/viewlabel")
-   .get([Label.getAllLabels]);  
-   
-
-
-
-  /****************************** updatingLabel-api ************************/
-
-  router
-  .route("/updatelabel")
-  .put([verifyToken,Label.updateLabel]);  
-
-
-
-  /****************************** deletinglabel-api *************************/
-
-  router
-  .route("/deletelabel")
-  .delete([Label.deleteLabel]);  
-    
- 
+// ================= LABEL =================
+router.post("/createlabel", verifyToken, Label.createLabel);
+router.get("/viewlabel", verifyToken, Label.getAllLabels);
+router.put("/updatelabel", verifyToken, Label.updateLabel);
+router.delete("/deletelabel", verifyToken, Label.deleteLabel);
 
 module.exports = router;

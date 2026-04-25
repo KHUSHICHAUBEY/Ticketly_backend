@@ -1,19 +1,20 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-var http = require("http");
-const dotenv = require("dotenv").config();
+const dotenv = require("dotenv");
+const connectDB = require("./config/db"); // ✅ use your file
 
+dotenv.config();
 
-const port = process.env.PORT;
 const app = express();
+const PORT = process.env.PORT || 5000;
+
+// ✅ Connect DB
+connectDB();
+
+// ✅ Middleware
 app.use(express.json());
 
-
-http.createServer(app).listen(port, function () {
-  console.log("app listening on port " + port);
-});
-
-app.use(function (req, res, next) {
+// ✅ CORS (keep simple for now)
+app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Methods",
@@ -21,9 +22,15 @@ app.use(function (req, res, next) {
   );
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization"
+    "Origin, Content-Type, Accept, Authorization"
   );
   next();
-  return;
 });
-app.use("/", require(`./routes`));
+
+// ✅ Routes
+app.use("/", require("./routes"));
+
+// ✅ Start server (ALWAYS LAST)
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});

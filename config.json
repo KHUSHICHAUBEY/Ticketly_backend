@@ -1,5 +1,5 @@
 {
     "mongo": {
-      "ticketingUrl" : "mongodb://localhost:27017/MyTicketing"
+      "ticketingUrl" : "mongodb+srv://khushi:khushi0108@cluster.h9jgxys.mongodb.net/?appName=Cluster?retryWrites=true&w=majority"
     }
   }
