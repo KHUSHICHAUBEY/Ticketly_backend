@@ -1,91 +1,148 @@
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
+const Label = require("../models/labels");
 
-const config = require("../config.json");
-const conUser = mongoose.createConnection(config.mongo.ticketingUrl);
-
-const labelSchema = require("../models/labels");
-const labelModel = conUser.model("Label", labelSchema);
-
-
-let categories = {};
-
-
-// Create a Label:
+// CREATE LABEL
 const createLabel = async (req, res) => {
-    try {
-        const { name } = req.body;
+  try {
+    const { name, description } = req.body;
 
-        // Create a new label instance
-        const label = await labelModel.create({
-            name:name
-        });
-        res.status(200).json({ success: 1, label: label });
-    } catch (error) {
-        res.status(400).json({ success: 0, error: error.message });
+    if (!name) {
+      return res.status(400).json({
+        success: 0,
+        message: "Label name is required"
+      });
     }
+
+    const existing = await Label.findOne({ name });
+
+    if (existing) {
+      return res.status(400).json({
+        success: 0,
+        message: "Label already exists"
+      });
+    }
+
+    const label = await Label.create({
+      name,
+      description: description || "",
+      createdBy: req.authUser?._id,
+      updatedBy: req.authUser?._id
+    });
+
+    return res.status(200).json({
+      success: 1,
+      message: "Label created successfully",
+      data: label
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: 0,
+      message: error.message
+    });
+  }
 };
 
 
-// Read All Labels:
+// GET ALL LABELS
 const getAllLabels = async (req, res) => {
-    try {
-        const labels = await labelModel.find();
-        res.status(200).json({ success: 1 , labels });
-    } catch (error) {
-        res.status(400).json({ success: 0 , error: error.message });
-    }
+  try {
+    const labels = await Label.find();
+
+    return res.status(200).json({
+      success: 1,
+      data: labels
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: 0,
+      message: error.message
+    });
+  }
 };
 
 
-// Update a Label:
+// UPDATE LABEL
 const updateLabel = async (req, res) => {
-    try {
-        const { name, label_id} = req.body;
+  try {
+    const { label_id, name, description } = req.body;
 
-        // Check if the label exists
-        const label = await labelModel.findByIdAndUpdate(label_id);
-        if (!label) {
-         res.status(400).json({ success: 0, message: "Label not found" });
-         return;
-        }
+    if (!label_id) {
+      return res.status(400).json({
+        success: 0,
+        message: "label_id is required"
+      });
+    }
 
-    if(name) {label.name = name;}
-    //if(description) {label.description = description;}
-    updatedBy = req.authUser._id;
+    const label = await Label.findById(label_id);
+
+    if (!label) {
+      return res.status(404).json({
+        success: 0,
+        message: "Label not found"
+      });
+    }
+
+    if (name) label.name = name;
+    if (description) label.description = description;
+
+    label.updatedBy = req.authUser?._id;
     label.updatedAt = new Date();
 
-    // Save the updated label
-      const updatedLabel = await label.save();
+    const updated = await label.save();
 
-        res.status(200).json({ success: 1, message: 'Label updated successfully', label : updatedLabel });
-    } catch (error) {
-        res.status(400).json({ success: 0, message: 'Internal Server Error' });
-    }
+    return res.status(200).json({
+      success: 1,
+      message: "Label updated successfully",
+      data: updated
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: 0,
+      message: error.message
+    });
+  }
 };
 
 
-
-// Delete a Label:
+// DELETE LABEL
 const deleteLabel = async (req, res) => {
-    try {
-        const {label_id} = req.body;
-        // check if the label exists
-        const label = await labelModel.findByIdAndDelete(label_id);
-        if (!label) {
-            return res.status(400).json({ success: 0, message: "label not found" });
-        }
-        
-         // Delete the label
-        await labelModel.findByIdAndDelete(label_id);
+  try {
+    const { label_id } = req.body;
 
-        res.status(200).json({ success: 1, message: "Label deleted successfully" });
-    } catch (error) {
-        res.status(400).json({ success: 0, error: error.message });
+    if (!label_id) {
+      return res.status(400).json({
+        success: 0,
+        message: "label_id is required"
+      });
     }
+
+    const deleted = await Label.findByIdAndDelete(label_id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: 0,
+        message: "Label not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: 1,
+      message: "Label deleted successfully"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: 0,
+      message: error.message
+    });
+  }
 };
 
-
-
-categories={createLabel,getAllLabels,updateLabel,deleteLabel};
-module.exports=categories;
+module.exports = {
+  createLabel,
+  getAllLabels,
+  updateLabel,
+  deleteLabel
+};

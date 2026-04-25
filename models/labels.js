@@ -1,30 +1,32 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const labelSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    description: {
-        type: String
-    },
-    createdAt: {
-        type: Date,
-        default: new Date()
-    },
-    updatedAt: {
-        type: Date,
-        default: new Date()
-    },
-    createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users', // Reference to the User model
-    },
-    updatedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'users' // Reference to the User model
-    }
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    default: ""
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }
 });
 
-module.exports = labelSchema;
+module.exports = mongoose.model("Label", labelSchema);

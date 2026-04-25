@@ -1,17 +1,16 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-
-const emailSchema = new mongoose.Schema({
-  firstName:{
+const userSchema = new mongoose.Schema({
+  firstName: {
     type: String,
     required: [true, 'first name is required'],
   },
-  lastName:{
+  lastName: {
     type: String,
     required: [true, 'last name is required'],
   },
-  password:{
+  password: {
     type: String,
     required: [true, 'password is required'],
   },
@@ -24,15 +23,15 @@ const emailSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['admin', 'user'],
-    default: 'user' // Default role is 'user'
-},
+    default: 'user'
+  },
   status: {
     type: String,
-    default: 'active',
     enum: ['active', 'inactive'],
+    default: 'active',
   },
   createdBy: {
-      type: mongoose.Schema.Types.ObjectId
+    type: mongoose.Schema.Types.ObjectId
   },
   createdAt: {
     type: Date,
@@ -44,5 +43,4 @@ const emailSchema = new mongoose.Schema({
   }
 });
 
-
-module.exports = emailSchema;
+module.exports = mongoose.model("User", userSchema);
